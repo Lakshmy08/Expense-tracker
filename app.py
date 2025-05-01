@@ -65,7 +65,7 @@ def signup():
             flash("User already exists", "danger")
             return redirect(url_for('signup'))
 
-        hashed_pw = generate_password_hash(password, method='sha256')
+        hashed_pw = generate_password_hash(password, method='pbkdf2:sha256')
         new_user = User(username=username, password=hashed_pw)
         db.session.add(new_user)
         db.session.commit()
