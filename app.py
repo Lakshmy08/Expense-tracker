@@ -18,27 +18,6 @@ login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
 # ===================== MODELS =====================
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(100), nullable=False)
-    reminders = db.relationship('Reminder', backref='user', lazy=True)
-    expenses = db.relationship('Expense', backref='user', lazy=True)
-
-class Expense(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    amount = db.Column(db.Float, nullable=False)
-    description = db.Column(db.String(255), nullable=False)
-    date = db.Column(db.Date, nullable=False)
-    category = db.Column(db.String(50), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
-class Reminder(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
-    due_date = db.Column(db.Date, nullable=False)
-    is_paid = db.Column(db.Boolean, default=False)
 
 # ===================== LOGIN MANAGER =====================
 @login_manager.user_loader
@@ -83,13 +62,26 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
 
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            flash("Login successful!", "success")
-            return redirect(url_for('home'))
+        if user:
+            # First, try checking the password with the current hash method (pbkdf2:sha256)
+            if check_password_hash(user.password, password):
+                login_user(user)
+                flash("Login successful!", "success")
+                return redirect(url_for('home'))
+
+            # If the password hash method is outdated (sha256), rehash it and update the user
+            if user.password.startswith('sha256'):
+                # Rehash the password with pbkdf2:sha256 and update in the database
+                new_hash = generate_password_hash(password, method='pbkdf2:sha256')
+                user.password = new_hash
+                db.session.commit()  # Update the user's password in the database
+                login_user(user)
+                flash("Login successful! Your password was updated.", "success")
+                return redirect(url_for('home'))
 
         flash("Invalid username or password", "danger")
         return redirect(url_for('login'))
+    
     return render_template('login.html')
 
 @app.route('/logout')
