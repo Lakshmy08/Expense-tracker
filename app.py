@@ -258,9 +258,43 @@ def contact():
 @app.route('/reminders')
 @login_required
 def reminders():
+    from sqlalchemy import and_
     today = datetime.today()
-    reminders = Reminder.query.filter_by(user_id=current_user.id).filter(Reminder.due_date <= today + timedelta(days=2)).order_by(Reminder.due_date).all()
-    return render_template('reminders.html', reminders=reminders)
+
+    # Filters from query parameters
+    status = request.args.get('status')
+    search = request.args.get('search', '')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+
+    # Base query
+    query = Reminder.query.filter_by(user_id=current_user.id)
+
+    # Apply search filter
+    if search:
+        query = query.filter(Reminder.title.ilike(f'%{search}%'))
+
+    # Apply status filter
+    if status == 'paid':
+        query = query.filter(Reminder.is_paid.is_(True))
+    elif status == 'unpaid':
+        query = query.filter(Reminder.is_paid.is_(False))
+
+    # Apply date range filter
+    if start_date:
+        query = query.filter(Reminder.due_date >= datetime.strptime(start_date, '%Y-%m-%d'))
+    if end_date:
+        query = query.filter(Reminder.due_date <= datetime.strptime(end_date, '%Y-%m-%d'))
+
+    reminders = query.order_by(Reminder.due_date).all()
+
+    # For notification: upcoming unpaid bills (next 2 days)
+    upcoming_reminders = Reminder.query.filter_by(user_id=current_user.id)\
+        .filter(Reminder.due_date <= today + timedelta(days=2), Reminder.is_paid.is_(False))\
+        .order_by(Reminder.due_date).all()
+
+    return render_template('reminders.html', reminders=reminders, upcoming_reminders=upcoming_reminders)
+
 
 @app.route('/reminders/add', methods=['POST'])
 @login_required

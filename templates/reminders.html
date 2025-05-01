@@ -3,27 +3,42 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="mb-4">Bill Reminders</h2>
+
     {% with messages = get_flashed_messages() %}
     {% if messages %}
-      <div class="alert alert-info">
-        {% for message in messages %}
-          <p class="mb-0">{{ message }}</p>
-        {% endfor %}
-      </div>
-    {% endif %}
-  {% endwith %}
-  
-    <!-- Bill Due Notification -->
-    {% if reminders %}
-    <div class="alert alert-warning" role="alert">
-        <strong>Reminder!</strong> You have bills that are due or will be due soon:
-        <ul>
-            {% for r in reminders %}
-            <li>{{ r.title }} - Due on {{ r.due_date.strftime('%Y-%m-%d') }}</li>
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p class="mb-0">{{ message }}</p>
             {% endfor %}
-        </ul>
-    </div>
+        </div>
     {% endif %}
+    {% endwith %}
+
+    <!-- Filter & Search Form -->
+    <form method="GET" action="{{ url_for('reminders') }}" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <input type="text" name="search" class="form-control" placeholder="Search by title" value="{{ request.args.get('search', '') }}">
+        </div>
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">All Status</option>
+                <option value="paid" {% if request.args.get('status') == 'paid' %}selected{% endif %}>Paid</option>
+                <option value="unpaid" {% if request.args.get('status') == 'unpaid' %}selected{% endif %}>Unpaid</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+        </div>
+        <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+        <div class="col-md-2">
+            <a href="{{ url_for('reminders') }}" class="btn btn-secondary w-100">Reset</a>
+        </div>
+    </form>
 
     <!-- Add Reminder Form -->
     <form method="POST" action="{{ url_for('add_reminder') }}" class="row g-3 mb-4">
@@ -37,6 +52,16 @@
             <button type="submit" class="btn btn-success w-100">Add Reminder</button>
         </div>
     </form>
+    {% if upcoming_reminders %}
+<div class="alert alert-warning" role="alert">
+    <strong>Reminder!</strong> You have unpaid bills due soon:
+    <ul>
+        {% for r in upcoming_reminders %}
+        <li>{{ r.title }} - Due on {{ r.due_date.strftime('%Y-%m-%d') }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 
     <!-- Reminder Table -->
     <div class="table-responsive">
@@ -77,7 +102,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="4" class="text-center text-muted">No reminders yet.</td>
+                    <td colspan="4" class="text-center text-muted">No reminders found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -88,4 +113,5 @@
         <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
     </div>
 </div>
+
 {% endblock %}
