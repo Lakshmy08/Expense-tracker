@@ -72,6 +72,13 @@
         </div>
         {% endfor %}
     {% endif %}
+
+    <!-- Back to Home Button -->
+    <div class="row mb-4">
+        <div class="col-md-4 offset-md-4 text-center">
+            <a href="{{ url_for('home') }}" class="btn btn-primary">Back to Home</a>
+        </div>
+    </div>
 </div>
 
 {% if monthly_totals %}
