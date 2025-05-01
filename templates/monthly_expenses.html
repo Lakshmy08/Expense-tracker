@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1>Expense Tracker</h1>
+        <h2>Monthly Expense Tracker</h2>
+        <p class="lead">Select a month to view your expenses!</p>
+    </div>
+
+    <!-- Month Filter -->
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <form method="GET" action="{{ url_for('monthly_expenses') }}">
+                <div class="input-group">
+                    <label class="input-group-text" for="month">Month</label>
+                    <select class="form-select" id="month" name="month" required onchange="this.form.submit()">
+                        <option value="" disabled {% if not selected_month %}selected{% endif %}>Select a month</option>
+                        {% for month in available_months %}
+                        <option value="{{ month }}" {% if selected_month == month %}selected{% endif %}>{{ month }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if monthly_totals %}
+        {% for month_data in monthly_totals %}
+        <div class="mb-5">
+            <h3 class="text-center">{{ month_data.month }}</h3>
+            
+            <!-- Total Expense Card -->
+            <div class="row text-center mb-4">
+                <div class="col-md-4 offset-md-4">
+                    <div class="card border-success">
+                        <div class="card-body">
+                            <h5 class="card-title">Total Expenses</h5>
+                            <h3 class="text-success">₹{{ '%.2f' % month_data.total }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Breakdown Cards -->
+            <div class="row mb-4">
+                {% for category, amt in category_totals_by_month[month_data.month] %}
+                <div class="col-md-2">
+                    <div class="card text-white bg-info mb-3">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-center">{{ category }}</h6>
+                            <p class="card-text text-center mb-0">₹{{ '%.2f' % amt }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pie Chart -->
+            {% if category_totals_by_month[month_data.month] %}
+            <div class="row mb-5">
+                <div class="col-md-6 offset-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Expense Breakdown by Category</h5>
+                            <canvas id="expenseChart{{ loop.index }}" width="400" height="400"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% if monthly_totals %}
+{% for month_data in monthly_totals %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx{{ loop.index }} = document.getElementById('expenseChart{{ loop.index }}').getContext('2d');
+    new Chart(ctx{{ loop.index }}, {
+        type: 'pie',
+        data: {
+            labels: {{ category_totals_by_month[month_data.month] | map(attribute='0') | list | safe }},
+            datasets: [{
+                data: {{ category_totals_by_month[month_data.month] | map(attribute='1') | list | safe }},
+                backgroundColor: ['#007bff', '#dc3545', '#28a745', '#ffc107', '#6f42c1', '#fd7e14'],
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>
+{% endfor %}
+{% endif %}
+{% endblock %}

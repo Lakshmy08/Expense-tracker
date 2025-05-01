@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Navbar -->
+
+
+<!-- Hero Section -->
+<div class="container d-flex align-items-center justify-content-center text-center" style="min-height: 90vh;">
+    <div>
+        <h1 class="display-3 fw-bold mb-3">Expense Tracker</h1>
+        <h2 class="display-6 fw-bold mb-3">Track Your Expenses Smarter</h2>
+        <p class="lead mb-4">Manage your spending and stay on top of your budget with ease.</p>
+
+        <img src="{{ url_for('static', filename='images/images.jpg') }}" alt="Finance Illustration"
+             class="img-fluid mb-4" style="max-height: 300px;">
+
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg px-4 me-sm-3">Login</a>
+            <a href="{{ url_for('signup') }}" class="btn btn-outline-success btn-lg px-4">Sign Up</a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="mb-4 fw-bold">Why Choose Us?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 border rounded">
+                    <h5 class="fw-bold">Simple & Intuitive</h5>
+                    <p>Designed for ease of use, so you can focus on managing your finances, not figuring out how the app works.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 border rounded">
+                    <h5 class="fw-bold">Real-time Insights</h5>
+                    <p>Get instant charts and spending breakdowns to help you stay on budget and avoid overspending.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 border rounded">
+                    <h5 class="fw-bold">Secure & Private</h5>
+                    <p>Your data is safe with us. We use top-tier encryption and never share your data.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-5">
+    <div class="container text-center">
+        <h2 class="mb-4 fw-bold">What Our Users Say</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <blockquote class="blockquote">
+                    <p>"This app changed the way I manage my money. It's easy and powerful!"</p>
+                    <footer class="blockquote-footer">Aarav S.</footer>
+                </blockquote>
+            </div>
+            <div class="col-md-4">
+                <blockquote class="blockquote">
+                    <p>"I love the clean interface and how simple it is to track my daily expenses."</p>
+                    <footer class="blockquote-footer">Meera K.</footer>
+                </blockquote>
+            </div>
+            <div class="col-md-4">
+                <blockquote class="blockquote">
+                    <p>"Highly recommend it for anyone looking to get serious about budgeting."</p>
+                    <footer class="blockquote-footer">Vikram T.</footer>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="py-5 bg-dark text-white text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-3">Start Taking Control of Your Finances</h2>
+        <p class="mb-4">Join thousands of users saving money and staying organized every day.</p>
+        <a href="{{ url_for('signup') }}" class="btn btn-success btn-lg">Get Started for Free</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %} {% block content %}
+
+
+<div class="container mt-5">
+  <h1 class="fw-bold">Contact Expense Tracker</h1>
+  <p>Need help or have a question? We're happy to hear from you!</p>
+
+  <ul>
+    <li>
+      Email:
+      <a href="mailto:support@expensetracker.com">support@expensetracker.com</a>
+    </li>
+    <li>Phone: +91 98765 43210</li>
+    <li>Support Hours: Mon–Fri, 9:00 AM – 6:00 PM</li>
+    <li>Address: 123 Budget Lane, FinCity, India 123456</li>
+  </ul>
+
+  <h5 class="mt-4">📬 Send Us a Message</h5>
+  <form method="post">
+    <div class="mb-3">
+      <label for="name" class="form-label">Your Name</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        class="form-control"
+        placeholder="Your full name"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Your Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        class="form-control"
+        placeholder="you@example.com"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="message" class="form-label">Your Message</label>
+      <textarea
+        id="message"
+        name="message"
+        class="form-control"
+        rows="4"
+        placeholder="How can we assist you?"
+      ></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Send Message</button>
+  </form>
+</div>
+{% endblock %}

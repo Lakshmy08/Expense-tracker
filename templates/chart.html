@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Navbar -->
+
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1>Expense Tracker</h1>
+        <h2>Expense Breakdown Chart</h2>
+        <p class="lead">Hello {{ current_user.username }}, here’s how your spending looks!</p>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center mb-4">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+    </div>
+
+    {% if category_totals %}
+    <!-- Total Expenses Card -->
+    <div class="row text-center mb-4">
+        <div class="col-md-4 offset-md-4">
+            <div class="card border-success">
+                <div class="card-body">
+                    <h5 class="card-title">Total Expenses</h5>
+                    <h3 class="text-success">₹{{ '%.2f' % total }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Breakdown Cards -->
+    <div class="row mb-4">
+        {% for cat, amt in category_totals.items() %}
+        <div class="col-md-2">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body p-2">
+                    <h6 class="card-title text-center">{{ cat }}</h6>
+                    <p class="card-text text-center mb-0">₹{{ '%.2f' % amt }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pie Chart -->
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <canvas id="expenseChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p class="text-center mt-4">No expenses recorded to visualize.</p>
+    {% endif %}
+</div>
+
+{% if category_totals %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ category_totals.keys() | list | safe }},
+            datasets: [{
+                label: 'Expenses by Category',
+                data: {{ category_totals.values() | list | safe }},
+                backgroundColor: [
+                    '#007bff', '#dc3545', '#ffc107', '#28a745', '#6f42c1', '#fd7e14'
+                ],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: false,
+            animation: {
+                duration: 0,
+                animateRotate: false,
+                animateScale: false,
+            },
+            hover: {
+                animationDuration: 0,
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            events: []
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}
