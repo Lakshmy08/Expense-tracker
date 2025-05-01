@@ -14,7 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///expenses.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
-db = SQLAlchemy(app)
+db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -64,25 +64,18 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user:
-            # First, try checking the password with the current hash method (pbkdf2:sha256)
-            if check_password_hash(user.password, password):
-                login_user(user)
-                flash("Login successful!", "success")
-                return redirect(url_for('home'))
-
-            # If the password hash method is outdated (sha256), rehash it and update the user
-            if user.password.startswith('sha256'):
-                # Rehash the password with pbkdf2:sha256 and update in the database
-                new_hash = generate_password_hash(password, method='pbkdf2:sha256')
-                user.password = new_hash
-                db.session.commit()  # Update the user's password in the database
-                login_user(user)
-                flash("Login successful! Your password was updated.", "success")
-                return redirect(url_for('home'))
+            try:
+                if check_password_hash(user.password, password):
+                    login_user(user)
+                    flash("Login successful!", "success")
+                    return redirect(url_for('home'))
+            except ValueError:
+                flash("Outdated or invalid password hash. Please reset your password.", "danger")
+                return redirect(url_for('login'))
 
         flash("Invalid username or password", "danger")
         return redirect(url_for('login'))
-    
+
     return render_template('login.html')
 
 @app.route('/logout')
